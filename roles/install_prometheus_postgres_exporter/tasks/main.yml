@@ -1,0 +1,14 @@
+---
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: install package
+  ansible.builtin.apt:
+    name:
+      - prometheus-postgres-exporter
+  register: status_install
+
+- name: result install package
+  ansible.builtin.debug:
+    var: status_install

@@ -1,0 +1,84 @@
+---
+# tasks file for test_servers
+
+- name: 1 apt-daily.timer
+  ansible.builtin.systemd_service:
+    name: apt-daily.service
+    enabled: no
+    masked: yes
+    state: stopped
+
+- name: 2 apt-daily.timer перечитать состояние
+  ansible.builtin.systemd_service:
+    name: apt-daily.service
+  register: status_service
+
+- name: 3 Отчёт apt-daily.timer
+  ansible.builtin.debug:
+    msg: " {{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "
+
+- name: 4 apt-daily.service
+  ansible.builtin.systemd_service:
+    name: apt-daily.service
+    enabled: no
+    masked: yes
+    state: stopped
+
+- name: 5 apt-daily.service перечитать состояние
+  ansible.builtin.systemd_service:
+    name: apt-daily.service
+  register: status_service
+
+- name: 6 Отчёт apt-daily.service
+  ansible.builtin.debug:
+    msg: " {{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "
+
+- name: 7 apt-daily-upgrade.timer
+  ansible.builtin.systemd_service:
+    name: apt-daily-upgrade.service
+    enabled: no
+    masked: yes
+    state: stopped
+
+- name: 8 apt-daily-upgrade.timer перечитать состояние
+  ansible.builtin.systemd_service:
+    name: apt-daily-upgrade.service
+  register: status_service
+
+- name: 9 Отчёт apt-daily-upgrade.timer
+  ansible.builtin.debug:
+    msg: " {{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "
+
+- name: 10 apt-daily-upgrade.service
+  ansible.builtin.systemd_service:
+    name: apt-daily-upgrade.service
+    enabled: no
+    masked: yes
+    daemon_reload: yes
+    state: stopped
+
+- name: 11 apt-daily-upgrade.service перечитать состояние
+  ansible.builtin.systemd_service:
+    name: apt-daily-upgrade.service
+  register: status_service
+
+- name: 12 Отчёт apt-daily-upgrade.service
+  ansible.builtin.debug:
+    msg: " {{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "
+
+- name: 13 Remove file /etc/apt/apt.conf.d/20auto-upgrades
+  ansible.builtin.file:
+    path: /etc/apt/apt.conf.d/20auto-upgrades
+    state: absent
+
+- name: 14 stop unattended-upgrades
+  ansible.builtin.systemd:
+    name: unattended-upgrades
+    enabled: no
+    masked: yes
+    state: stopped
+  register: status_service
+
+- name: 15 result unattended-upgrades
+  debug:
+    msg: "{{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "

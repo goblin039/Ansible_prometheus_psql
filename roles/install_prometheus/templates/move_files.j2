@@ -1,0 +1,7 @@
+mv /tmp/{{ prom_name }}/prometheus {{ prometheus_dir }}
+mv /tmp/{{ prom_name }}/promtool {{ prometheus_dir }}
+mv /tmp/{{ prom_name }}/prometheus.yml {{ prometheus_dir }}
+mv /tmp/{{ prom_name }}/console_libraries/* {{ prometheus_dir }}/console_libraries/
+mv /tmp/{{ prom_name }}/* {{ prometheus_dir }}/consoles/
+chown -R {{ prometheus_service_name }}:{{ prometheus_service_name }} {{ prometheus_dir }}
+rm -rf /tmp/{{ prom_name }}

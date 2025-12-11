@@ -1,0 +1,21 @@
+[Unit]
+Description=Node Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ node_ex_service_name }}
+Group={{ node_ex_service_name }}
+Type=simple
+ExecStart={{ node_exporter_dir }}/node_exporter \
+    --log.level=warn \
+    --collector.interrupts \
+    --collector.cpu \
+    --collector.cpufreq \
+    --collector.meminfo \
+    --collector.pressure \
+    --collector.processes
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

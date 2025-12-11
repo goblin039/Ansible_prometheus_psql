@@ -1,0 +1,28 @@
+---
+- name: prepare
+  hosts: all
+  become: true
+  become_user: root
+  remote_user: goblin
+  become_method: sudo
+  vars:
+    grf_name: grafana_12.3.0__linux_amd64.deb
+
+    prom_name: prometheus-3.8.0.linux-amd64 # имя без .tar.gz
+    prometheus_dir: /etc/prometheus
+    prometheus_tsdb_dir: /var/lib/prometheus
+    prometheus_bin_dir: /usr/local/bin
+    prometheus_service_name: prometheus
+
+    node_ex_name: node_exporter-1.10.2.linux-amd64 # имя без .tar.gz
+    node_ex_service_name: node-exporter
+    node_exporter_dir: /etc/node-exporter
+
+  roles:
+    - { role: test_servers }
+    - { role: default_install }
+    - { role: install_grafana, when: "'grafana' in group_names" }
+    - { role: install_prometheus, when: "'prometheus' in group_names" }
+    - { role: install_node_exporter, when: "'node_exporter' in group_names" }
+    - { role: install_prometheus_postgres_exporter, when: "'install_prometheus_postgres_exporter' in group_names" }
+    - { role: install_postgres, when: "'postgresql' in group_names" }

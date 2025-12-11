@@ -1,0 +1,85 @@
+---
+- name: create user prometheus
+  ansible.builtin.user:
+    name: "{{ prometheus_service_name }}"
+    system: yes
+    shell: /sbin/nologin
+    create_home: no
+
+- name: unpack arhiv into /tmp
+  ansible.builtin.unarchive:
+    src: "{{ prom_name }}.tar.gz"
+    dest: /tmp/
+
+- name: create dir prometheus
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ prometheus_service_name }}"
+    group: "{{ prometheus_service_name }}"
+    mode: 0744
+  with_items:
+    - "{{ prometheus_dir }}"
+    - "{{ prometheus_dir }}/consoles"
+    - "{{ prometheus_dir }}/console_libraries"
+
+- name: create dir TSDB
+  ansible.builtin.file:
+    path: "{{ prometheus_tsdb_dir }}"
+    state: directory
+    owner: "{{ prometheus_service_name }}"
+    group: "{{ prometheus_service_name }}"
+    mode: 0755
+
+- name: create script copy files
+  template:
+    src: move_files.j2
+    dest: /tmp/move_files.sh
+    owner: "root"
+    group: "root"
+    mode: 0750
+
+- name: start copy prometheus files
+  ansible.builtin.shell:
+    cmd: /tmp/move_files.sh
+
+- name: delete script copy files
+  ansible.builtin.file:
+    path: /tmp/move_files.sh
+    state: absent
+
+- name: add prometheus.service
+  ansible.builtin.template:
+    src: prometheus.j2
+    dest: /etc/systemd/system/prometheus.service
+    owner: root
+    group: root
+    mode: 0644
+
+- name: create soft-link
+  ansible.builtin.file:
+    src: "{{ prometheus_dir }}/prometheus"
+    dest: /usr/local/bin/prometheus
+    state: link
+
+- name: create soft-link
+  ansible.builtin.file:
+    src: "{{ prometheus_dir }}/promtool"
+    dest: /usr/local/bin/promtool
+    state: link
+
+- name: started prometheus
+  ansible.builtin.systemd:
+    name: prometheus
+    state: started
+    daemon_reload: yes
+    enabled: yes
+
+- name: test status prometheus
+  ansible.builtin.systemd:
+    name: prometheus
+  register: status_service
+
+- name: result status prometheus
+  debug:
+    msg: "{{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "

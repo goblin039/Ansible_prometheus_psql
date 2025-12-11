@@ -1,0 +1,42 @@
+---
+# tasks file for install_postgres
+- name: Импортировать ключ PostgreSQL GPG
+  ansible.builtin.apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+
+- name: Добавить репозиторий PostgreSQL
+  ansible.builtin.apt_repository:
+    repo: "deb http://apt.postgresql.org/pub/repos/apt {{ ansible_distribution_release }}-pgdg main"
+    filename: "/etc/apt/sources.list.d/pgdg.list" #pgdg
+    state: present
+
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: install package
+  ansible.builtin.apt:
+    name:
+      - postgresql
+  register: status_install
+
+- name: result install package
+  ansible.builtin.debug:
+    var: status_install
+
+- name: started postgresql
+  ansible.builtin.service:
+    name: postgresql.service
+    state: started
+    daemon_reload: yes
+    enabled: yes
+
+- name: test status postgresql
+  ansible.builtin.service:
+    name: postgresql.service
+  register: status_service
+
+- name: result status postgresql
+  debug:
+    msg: "{{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "

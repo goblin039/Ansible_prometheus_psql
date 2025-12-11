@@ -1,0 +1,57 @@
+---
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: install package
+  ansible.builtin.apt:
+    name:
+      - adduser
+      - libfontconfig1
+      - musl
+  register: status_install
+
+- name: result install package
+  ansible.builtin.debug:
+    var: status_install
+
+# Работает только во внутренних сетях :(
+#- name: install grafana on local
+#  ansible.builtin.apt:
+#    deb: "{{ grf_paht }}"
+#  register: status_packed
+
+- name: copy drafana deb package
+  ansible.builtin.copy:
+    src: "{{ grf_name }}"
+    dest: /tmp/
+
+- name: install grafana on local
+  ansible.builtin.apt:
+    deb: "/tmp/{{ grf_name }}"
+  register: status_packed
+
+- name: result install package
+  ansible.builtin.debug:
+    var: status_packed
+
+- name: started grafana
+  ansible.builtin.systemd:
+    name: grafana-server
+    daemon_reload: yes
+    enabled: yes
+    state: started
+
+- name: delete drafana deb package
+  ansible.builtin.file:
+    path: "/tmp/{{ grf_name }}"
+    state: absent
+
+- name: status grafana
+  ansible.builtin.systemd:
+    name: grafana-server
+  register: status_service
+
+- name: result started grafana
+  debug:
+    msg: "{{ status_service.status.Names}}: {{ status_service.status.ActiveState}}, {{ status_service.status.SubState }} "

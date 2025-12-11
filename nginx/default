@@ -1,0 +1,16 @@
+server {
+  listen 80 ;
+  server_name _ ;
+  allow 127.0.0.0/8 ;
+  allow 192.168.1.0/24 ;
+  allow 192.168.100.0/24 ;
+  deny all ;
+
+  location  /files {
+     alias /var/www/files ;
+     autoindex on ;
+     autoindex_exact_size off ;
+     autoindex_localtime on ;
+     charset UTF-8 ;
+  }
+}

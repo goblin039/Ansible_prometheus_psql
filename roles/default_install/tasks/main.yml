@@ -1,0 +1,19 @@
+---
+- name: apt update
+  ansible.builtin.apt:
+    update_cache: yes
+
+- name: install package
+  ansible.builtin.apt:
+    name:
+      - adduser
+      - apt-transport-https
+      - software-properties-common
+      - wget
+      - curl
+      - mc
+  register: status_install
+
+- name: result install package
+  ansible.builtin.debug:
+    var: status_install
