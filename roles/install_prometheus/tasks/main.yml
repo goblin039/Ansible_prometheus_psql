@@ -17,6 +17,7 @@
     state: directory
     owner: "{{ prometheus_service_name }}"
     group: "{{ prometheus_service_name }}"
+    recurse: yes
     mode: 0744
   with_items:
     - "{{ prometheus_dir }}"
